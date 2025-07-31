@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>توليد صورة بالذكاء الاصطناعي</title>
+</head>
+<body>
+  <h2>اكتب وصف للصورة:</h2>
+  <textarea id="prompt" rows="4" cols="50" placeholder="مثال: قطة تلعب في جنينة..."></textarea><br>
+  <button onclick="generateImage()">توليد الصورة</button>
+
+  <div id="result" style="margin-top: 20px;"></div>
+
+  <script>
+    async function generateImage() {
+      const prompt = document.getElementById("prompt").value;
+      const result = document.getElementById("result");
+
+      result.innerHTML = "جاري توليد الصورة...";
+
+      try {
+        const response = await fetch("https://api.openai.com/v1/images/generations", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "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"
+          },
+          body: JSON.stringify({
+            prompt: prompt,
+            n: 1,
+            size: "512x512" // تقدر تغيرها لـ "1024x1024" لو عايز صورة أوضح
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.data && data.data.length > 0) {
+          const imageUrl = data.data[0].url;
+          result.innerHTML = `<img src="${imageUrl}" alt="Generated Image" style="max-width:100%;">`;
+        } else {
+          result.innerHTML = "لم يتم توليد صورة. جرّب وصف مختلف.";
+        }
+      } catch (err) {
+        console.error(err);
+        result.innerHTML = "حدث خطأ أثناء توليد الصورة.";
+      }
+    }
+  </script>
+</body>
+</html>
