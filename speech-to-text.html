@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>تحويل الصوت إلى نص - AI Plus</title>
+  <style>
+    body {
+      font-family: 'Tajawal', sans-serif;
+      background: #f4f7f9;
+      margin: 0;
+      padding: 0;
+      color: #222;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      background-color: #2a2a72;
+      color: white;
+      padding: 20px;
+      width: 100%;
+      text-align: center;
+      font-size: 1.8em;
+      font-weight: bold;
+    }
+
+    .container {
+      margin-top: 30px;
+      padding: 20px;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+      width: 90%;
+      max-width: 600px;
+      text-align: center;
+    }
+
+    button {
+      background-color: #2a2a72;
+      color: white;
+      border: none;
+      padding: 15px 25px;
+      font-size: 1.1em;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #4141a2;
+    }
+
+    #result {
+      margin-top: 20px;
+      padding: 15px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      min-height: 100px;
+      background-color: #fafafa;
+      font-size: 1.1em;
+      direction: rtl;
+    }
+  </style>
+</head>
+<body>
+
+  <header>🎤 تحويل الصوت إلى نص - AI Plus</header>
+
+  <div class="container">
+    <p>اضغط على الزر وابدأ في التحدث، وسنحوّل كلامك إلى نص مكتوب.</p>
+    <button id="startBtn">ابدأ التسجيل</button>
+    <div id="result">النص سيظهر هنا...</div>
+  </div>
+
+  <script>
+    const startBtn = document.getElementById("startBtn");
+    const result = document.getElementById("result");
+
+    let recognizing = false;
+    let recognition;
+
+    if ("webkitSpeechRecognition" in window) {
+      recognition = new webkitSpeechRecognition();
+      recognition.lang = "ar-EG"; // أو en-US للإنجليزية
+      recognition.continuous = true;
+      recognition.interimResults = true;
+
+      recognition.onresult = function (event) {
+        let transcript = "";
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          transcript += event.results[i][0].transcript;
+        }
+        result.innerText = transcript;
+      };
+
+      recognition.onerror = function (event) {
+        console.error("Error occurred: ", event.error);
+      };
+
+      startBtn.addEventListener("click", () => {
+        if (!recognizing) {
+          recognition.start();
+          startBtn.innerText = "إيقاف التسجيل";
+          recognizing = true;
+        } else {
+          recognition.stop();
+          startBtn.innerText = "ابدأ التسجيل";
+          recognizing = false;
+        }
+      });
+    } else {
+      result.innerText = "المتصفح لا يدعم ميزة التعرف على الصوت.";
+    }
+  </script>
+</body>
+</html>
