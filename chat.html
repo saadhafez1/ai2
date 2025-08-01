@@ -1,50 +1,56 @@
-<!-- chat.html -->
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="UTF-8" />
-  <title>الدردشة الذكية</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title>AI Plus - شات</title>
   <style>
-    body { direction: rtl; background-color: #f9fafb; }
+    body { font-family: sans-serif; padding: 20px; background-color: #f2f2f2; }
+    #chatBox { height: 300px; overflow-y: scroll; background: white; padding: 10px; border: 1px solid #ccc; margin-bottom: 10px; }
+    input, button { padding: 10px; font-size: 16px; }
   </style>
 </head>
-<body class="p-6">
-  <div class="max-w-2xl mx-auto bg-white p-6 rounded shadow">
-    <h1 class="text-2xl font-bold mb-4 text-center">محادثة بالذكاء الاصطناعي</h1>
-    <div id="chatBox" class="h-64 overflow-y-auto border p-4 rounded mb-4 bg-gray-50"></div>
-    <div class="flex space-x-2">
-      <input type="text" id="userInput" class="flex-1 border rounded p-2" placeholder="اكتب سؤالك...">
-      <button onclick="sendMessage()" class="bg-blue-600 text-white px-4 py-2 rounded">إرسال</button>
-    </div>
-  </div>
+<body>
+  <h2>💬 شات AI</h2>
+  <div id="chatBox"></div>
+  <input type="text" id="userInput" placeholder="اكتب سؤالك هنا..." style="width: 70%;">
+  <button onclick="sendMessage()">إرسال</button>
 
   <script>
+    const apiKey = "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"; // 👈  الحقيقي
+
     async function sendMessage() {
-      const input = document.getElementById('userInput');
-      const chatBox = document.getElementById('chatBox');
-      const userMessage = input.value.trim();
-      if (!userMessage) return;
+      const input = document.getElementById("userInput");
+      const message = input.value;
+      if (!message) return;
 
-      chatBox.innerHTML += `<div class="mb-2"><strong>أنت:</strong> ${userMessage}</div>`;
-      input.value = '';
+      appendMessage("👤 أنت: " + message);
+      input.value = "";
 
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "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"
-        },
-        body: JSON.stringify({
-          model: "gpt-3.5-turbo",
-          messages: [{ role: "user", content: userMessage }]
-        })
-      });
+      try {
+        const res = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + apiKey
+          },
+          body: JSON.stringify({
+            model: "gpt-3.5-turbo",
+            messages: [{ role: "user", content: message }]
+          })
+        });
 
-      const data = await response.json();
-      const reply = data.choices?.[0]?.message?.content || "معذرة، لم أفهم.";
-      chatBox.innerHTML += `<div class="mb-2 text-right text-gray-800"><strong>الذكاء:</strong> ${reply}</div>`;
-      chatBox.scrollTop = chatBox.scrollHeight;
+        const data = await res.json();
+        const reply = data.choices[0].message.content;
+        appendMessage("🤖 AI: " + reply);
+      } catch (e) {
+        appendMessage("❌ حصل خطأ: " + e.message);
+      }
+    }
+
+    function appendMessage(text) {
+      const box = document.getElementById("chatBox");
+      box.innerHTML += `<div>${text}</div>`;
+      box.scrollTop = box.scrollHeight;
     }
   </script>
 </body>
